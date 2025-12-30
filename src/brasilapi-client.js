@@ -1,0 +1,56 @@
+const https = require('https');
+
+class BrasilApiClient {
+  constructor({ cacheTtlMs = 6 * 60 * 60 * 1000 } = {}) {
+    this.cacheTtlMs = cacheTtlMs;
+    this.cache = new Map();
+  }
+
+  async cnpjInfo(cnpj) {
+    if (!cnpj || cnpj.length !== 14) return null;
+
+    const cached = this.cache.get(cnpj);
+    if (cached && cached.expires > Date.now()) return cached.data;
+
+    const url = `https://brasilapi.com.br/api/cnpj/v1/${cnpj}`;
+
+    try {
+      const raw = await this._fetchJson(url);
+      if (!raw) return null;
+
+      const data = {
+        cnpj,
+        trade_name: raw.trade_name || raw.company_name || null,
+        cnae: (raw.cnae_fiscal || '').toString(),
+        cnae_desc: raw.cnae_fiscal_descricao || null
+      };
+
+      this.cache.set(cnpj, { data, expires: Date.now() + this.cacheTtlMs });
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
+  _fetchJson(url) {
+    return new Promise((resolve, reject) => {
+      https
+        .get(url, (res) => {
+          let buf = '';
+          res.on('data', (d) => {
+            buf += d;
+          });
+          res.on('end', () => {
+            try {
+              resolve(JSON.parse(buf));
+            } catch (e) {
+              reject(e);
+            }
+          });
+        })
+        .on('error', reject);
+    });
+  }
+}
+
+module.exports = BrasilApiClient;

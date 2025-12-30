@@ -1,11 +1,17 @@
 // Shared module for cross-microservice utilities
 require('dotenv').config({ path: process.env.CONFIG_PATH || '.env' });
+
+const Logger = require('./logger');
+const AppVars = require('./variables');
+const CryptoService = require('./crypto-service');
+const BrasilApiClient = require('./brasilapi-client');
+const { supabase } = require('../lib/supabase-client');
+
 module.exports = {
-  Logger: require('../../utils/logger'),
-  // AppVars agora é definido localmente em `src/variables.js`,
-  // eliminando dependência direta de arquivos do monolito.
-  AppVars: require('./variables'),
-  CryptoService: require('../../services/crypto-service'),
-  BrasilApiClient: require('../../services/brasilapi-client'),
-  supabase: require('../lib/supabase-client').supabase
+  Logger,
+  AppVars,
+  CryptoService,
+  BrasilApiClient,
+  supabase
 };
+
