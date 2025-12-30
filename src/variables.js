@@ -177,6 +177,23 @@ const AppVars = {
     CONSUMO_APOS_ANALISE: true
   },
 
+  arquivos: {
+    // Período padrão analisado em meses
+    PERIODO_MESES: 3,
+    // Limite de arquivos por mês
+    LIMITE_POR_MES: 10,
+    // Limite total de arquivos no período
+    LIMITE_TOTAL_PERIODO: 30,
+    // Tamanho máximo por arquivo (MB)
+    TAMANHO_MAX_ARQUIVO_MB: 10,
+    // Volume total máximo permitido no período (MB)
+    VOLUME_TOTAL_MAX_MB: 150,
+    // Extensões permitidas
+    EXTENSOES_PERMITIDAS: ['.csv', '.pdf'],
+    // Mimetypes permitidos
+    MIMETYPES_PERMITIDOS: ['text/csv', 'application/csv', 'text/plain', 'application/pdf']
+  },
+
   assinatura: {
     // Categorias consideradas "fixas" (mantêm valor integral)
     VALOR: "12,90",     
@@ -762,6 +779,13 @@ const AppVars = {
         nome: 'Restaurantes locais',
         subcategoria: 'Restaurante',
         termosExtras: ['pizza', 'churrascaria', 'lanchonete', 'sorveteria', 'hamburgueria']
+      }),
+      // Transporte em fatura: Passaro Marron Web
+      criarRegraDescricaoPorPadrao('Transporte', {
+        nome: 'Passaro Marron Web',
+        categoria: 'Transporte',
+        subcategoria: 'Passaro Marrom',
+        termosExtras: ['passaro marron web', 'passaro marrom', 'passaro marron']
       }),
       criarRegraDescricaoPorPadrao('Custos administrativos', {
         nome: 'Serviços e seguros financeiros',
