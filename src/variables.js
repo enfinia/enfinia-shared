@@ -50,13 +50,14 @@ const STEPS = {
   
   // ACCOUNT STEPS - Controla estado da conta
   ACCOUNT: {
-    PENDENTE_INICIO: 1,             // Aguardando escolha: criar plano agora ou depois
-    SEM_ONBOARDING: 2,              // Escolheu começar sem plano (só transações)
-    BASELINE_EM_ANDAMENTO: 3,       // Preenchendo baseline
-    PENDENTE_PLANEJAMENTO: 4,       // Baseline concluído, aguardando planejamento
-    PLANEJAMENTO_EM_ANDAMENTO: 5,   // Preenchendo planejamento
-    AGUARDANDO_RESPOSTA_CONTATOS_ADICIONAIS: 6,  // Perguntando sobre adicionar contatos
-    ONBOARDING_COMPLETO: 7          // Tudo concluído
+    PENDENTE_INICIO: 0,                    // Step 0 - Aguardando escolha: plano agora ou depois
+    SEM_ONBOARDING: 1,                     // Step 1 - Usuário escolheu começar sem plano (só transações)
+    AGUARDANDO_EXTRATOS: 2,               // Step 2 - Aguardando envio de extratos/faturas (enquanto ainda há arquivos para subir)
+    BASELINE_EM_ANDAMENTO: 3,             // Step 3 - Preenchendo baseline (escolheu criar plano)
+    PENDENTE_PLANEJAMENTO: 4,             // Step 4 - Baseline/extratos concluídos, aguardando gerar plano
+    PLANEJAMENTO_EM_ANDAMENTO: 5,         // Step 5 - Planejamento sendo criado/editado
+    AGUARDANDO_RESPOSTA_CONTATOS_ADICIONAIS: 6,  // Step 6 - Criando/ajustando contatos adicionais
+    ONBOARDING_COMPLETO: 7                // Step 7 - Plano aceito, tudo concluído
   },
   
   // BASELINE STEPS - Controla progresso do questionário
