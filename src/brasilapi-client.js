@@ -27,9 +27,13 @@ class BrasilApiClient {
             .filter((c) => c.code && c.description)
         : [];
 
+      // A BrasilAPI usa os campos `nome_fantasia` e `razao_social`.
+      // Os campos `trade_name` / `company_name` não existem na resposta.
+      const tradeName = raw.nome_fantasia || raw.razao_social || null;
+
       const data = {
         cnpj,
-        trade_name: raw.trade_name || raw.company_name || null,
+        trade_name: tradeName,
         cnae: (raw.cnae_fiscal || '').toString(),
         cnae_desc: raw.cnae_fiscal_descricao || null,
         secondary_cnaes: secondaryCnaes
