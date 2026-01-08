@@ -18,11 +18,21 @@ class BrasilApiClient {
       const raw = await this._fetchJson(url);
       if (!raw) return null;
 
+      const secondaryCnaes = Array.isArray(raw.cnaes_secundarios)
+        ? raw.cnaes_secundarios
+            .map((item) => ({
+              code: (item.codigo || '').toString(),
+              description: item.descricao || null
+            }))
+            .filter((c) => c.code && c.description)
+        : [];
+
       const data = {
         cnpj,
         trade_name: raw.trade_name || raw.company_name || null,
         cnae: (raw.cnae_fiscal || '').toString(),
-        cnae_desc: raw.cnae_fiscal_descricao || null
+        cnae_desc: raw.cnae_fiscal_descricao || null,
+        secondary_cnaes: secondaryCnaes
       };
 
       this.cache.set(cnpj, { data, expires: Date.now() + this.cacheTtlMs });
