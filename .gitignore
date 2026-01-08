@@ -12,8 +12,7 @@ coverage/
 *.log
 
 # Variáveis de ambiente / segredos
-.env
-.env.*
+
 *.local
 
 # Arquivos de sistema / editor
