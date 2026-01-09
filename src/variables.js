@@ -169,6 +169,20 @@ function criarInferenciaPorPadrao(config = {}) {
 }
 
 const AppVars = {
+  produto: {
+    RESUMO_CAPACIDADES: `Na Enfinia você consegue organizar e acompanhar sua vida financeira de ponta a ponta em um só lugar. Entre as principais coisas que você pode fazer estão:
+
+- Enviar extratos bancários e faturas de cartão para que o sistema leia e classifique automaticamente suas movimentações;
+- Ter um diagnóstico financeiro com quanto entra, quanto sai e para onde o dinheiro está indo em cada categoria;
+- Montar um plano financeiro a partir da sua renda ou dos seus gastos reais, com valores ideais por categoria;
+- Lançar transações manuais (entradas e saídas) direto pelo WhatsApp quando quiser registrar algo rápido;
+- Acompanhar mensalmente como estão seus gastos por categoria em relação ao plano e receber alertas quando algum ponto foge do combinado;
+- Ver um resumo da sua saúde financeira, incluindo distribuição entre essenciais, desejos e metas/reserva;
+- Definir e acompanhar um objetivo financeiro principal (como comprar casa, carro, sair das dívidas ou montar reserva) e usar o plano para caminhar nessa direção.
+
+Sempre que tiver dúvida sobre como usar algo da Enfinia, você pode perguntar em linguagem natural que eu explico em cima da sua situação e do que está disponível na conta.`,
+  },
+
   trial: {
     // Limite de arquivos que podem ser enviados no trial
     LIMITE_ARQUIVOS: 5,
