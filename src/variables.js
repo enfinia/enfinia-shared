@@ -51,7 +51,7 @@ const STEPS = {
   // ACCOUNT STEPS - Controla estado da conta
   ACCOUNT: {
     PENDENTE_INICIO: 0,                    // Step 0 - Aguardando escolha: plano agora ou depois
-    SEM_ONBOARDING: 1,                     // Step 1 - Usuário escolheu começar sem plano (só transações)
+    SEM_PLANO: 1,                         // Step 1 - Usuário escolheu começar sem plano (só transações)
     AGUARDANDO_EXTRATOS: 2,               // Step 2 - Aguardando envio de extratos/faturas (enquanto ainda há arquivos para subir)
     BASELINE_EM_ANDAMENTO: 3,             // Step 3 - Preenchendo baseline (escolheu criar plano)
     PENDENTE_PLANEJAMENTO: 4,             // Step 4 - Baseline/extratos concluídos, aguardando gerar plano
