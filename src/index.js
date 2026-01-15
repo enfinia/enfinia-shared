@@ -8,9 +8,16 @@ const CryptoService = require('./crypto-service');
 const BrasilApiClient = require('./brasilapi-client');
 const { supabase } = require('../lib/supabase-client');
 
+// Clean Architecture base classes
+const { BaseEntity } = require('./domain/entities');
+const { BaseUseCase } = require('./application/use-cases');
+const { RepositoryPort } = require('./application/ports');
+const { BaseController } = require('./adapters/controllers');
+const { BaseRepository } = require('./adapters/repositories');
+
 // New infrastructure modules
 const { correlationIdMiddleware, getCorrelationId, createCorrelationHeaders, CORRELATION_HEADER } = require('./infrastructure/middleware/correlation-id');
-const { createLogger, withCorrelationId, withRequestContext, requestLoggerMiddleware } = require('./infrastructure/logging/pino-logger');
+const { createLogger, withCorrelationId, withRequestContext, requestLoggerMiddleware, sanitizeLogData } = require('./infrastructure/logging/pino-logger');
 const { createSecurityMiddleware, jsonBodyParser, securityErrorHandler } = require('./infrastructure/middleware/security');
 const { createS2SAuthMiddleware, createOptionalS2SAuthMiddleware } = require('./infrastructure/middleware/s2s-auth');
 const { S2SClient, S2STokenGenerator } = require('./adapters/auth/s2s-client');
@@ -53,6 +60,7 @@ module.exports = {
   withCorrelationId,
   withRequestContext,
   requestLoggerMiddleware,
+  sanitizeLogData,
 
   // Security
   createSecurityMiddleware,
@@ -85,6 +93,13 @@ module.exports = {
   maskText,
   maskPhone,
   maskEmail,
-  maskCurrency
+  maskCurrency,
+
+  // Clean Architecture Base Classes
+  BaseEntity,
+  BaseUseCase,
+  RepositoryPort,
+  BaseController,
+  BaseRepository
 };
 
