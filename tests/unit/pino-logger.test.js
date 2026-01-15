@@ -88,7 +88,8 @@ describe('Pino Logger', () => {
         on: jest.fn((event, cb) => {
           if (event === 'finish') finishCallback = cb;
         }),
-        statusCode: 200
+        statusCode: 200,
+        get: jest.fn().mockReturnValue(null)
       };
       const mockNext = jest.fn();
 
