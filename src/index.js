@@ -31,6 +31,33 @@ const {
   checkDatabaseHealth
 } = require('./infrastructure/database/supabase-client');
 const {
+  generateUUID: generateDatabaseUUID,
+  isValidUUID,
+  parseUUID,
+  ensureUUID,
+  extractUUID,
+  uuidEquals
+} = require('./infrastructure/database/uuid-generator');
+const {
+  getCurrentTimestamp,
+  addCreatedAt,
+  addUpdatedAt,
+  addTimestamps,
+  processRecords,
+  parseTimestamp,
+  formatTimestamp,
+  daysAgo,
+  hoursAgo
+} = require('./infrastructure/database/timestamps-middleware');
+const {
+  batchInsert,
+  batchUpdate,
+  batchUpsert,
+  batchDelete,
+  withRetry,
+  chunk: chunkArray
+} = require('./infrastructure/database/batch-operations');
+const {
   createEncryptionService,
   hash,
   generateToken,
@@ -84,6 +111,33 @@ module.exports = {
   createRequestScopedClient,
   supabaseMiddleware,
   checkDatabaseHealth,
+
+  // UUID Utilities
+  generateDatabaseUUID,
+  isValidUUID,
+  parseUUID,
+  ensureUUID,
+  extractUUID,
+  uuidEquals,
+
+  // Timestamp Utilities
+  getCurrentTimestamp,
+  addCreatedAt,
+  addUpdatedAt,
+  addTimestamps,
+  processRecords,
+  parseTimestamp,
+  formatTimestamp,
+  daysAgo,
+  hoursAgo,
+
+  // Batch Operations
+  batchInsert,
+  batchUpdate,
+  batchUpsert,
+  batchDelete,
+  withRetry,
+  chunkArray,
 
   // Crypto & Security Utilities
   createEncryptionService,
