@@ -8,7 +8,7 @@ const crypto = require('crypto');
 
 const ALGORITHM = 'aes-256-cbc';
 const IV_LENGTH = 16;
-const SALT = 'enfinia-salt'; // Fixed salt for key derivation
+const SALT_LENGTH = 16;
 
 /**
  * Create an encryption service instance
@@ -28,13 +28,19 @@ function createEncryptionService(options = {}) {
     throw new Error('Encryption key must be at least 32 characters long.');
   }
 
-  // Derive a 32-byte key from the provided key
-  const key = crypto.scryptSync(encryptionKey, SALT, 32);
+  /**
+   * Derive a key from password and salt using scrypt
+   * @param {Buffer} salt - Random salt
+   * @returns {Buffer} Derived 32-byte key
+   */
+  function deriveKey(salt) {
+    return crypto.scryptSync(encryptionKey, salt, 32);
+  }
 
   /**
    * Encrypt a string value
    * @param {string} text - Plain text to encrypt
-   * @returns {string|null} Encrypted string in format "iv:encrypted" or null on error
+   * @returns {string|null} Encrypted string in format "salt:iv:encrypted" or null on error
    */
   function encrypt(text) {
     if (text === null || text === undefined || text === '') {
@@ -42,13 +48,15 @@ function createEncryptionService(options = {}) {
     }
 
     try {
+      const salt = crypto.randomBytes(SALT_LENGTH);
       const iv = crypto.randomBytes(IV_LENGTH);
+      const key = deriveKey(salt);
       const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 
       let encrypted = cipher.update(String(text), 'utf8', 'hex');
       encrypted += cipher.final('hex');
 
-      return iv.toString('hex') + ':' + encrypted;
+      return salt.toString('hex') + ':' + iv.toString('hex') + ':' + encrypted;
     } catch (error) {
       return null;
     }
@@ -56,7 +64,7 @@ function createEncryptionService(options = {}) {
 
   /**
    * Decrypt an encrypted string
-   * @param {string} encryptedText - Encrypted string in format "iv:encrypted"
+   * @param {string} encryptedText - Encrypted string in format "salt:iv:encrypted"
    * @returns {string|null} Decrypted plain text or null on error
    */
   function decrypt(encryptedText) {
@@ -67,12 +75,14 @@ function createEncryptionService(options = {}) {
     try {
       const parts = encryptedText.split(':');
 
-      if (parts.length !== 2) {
+      if (parts.length !== 3) {
         return null;
       }
 
-      const iv = Buffer.from(parts[0], 'hex');
-      const encrypted = parts[1];
+      const salt = Buffer.from(parts[0], 'hex');
+      const iv = Buffer.from(parts[1], 'hex');
+      const encrypted = parts[2];
+      const key = deriveKey(salt);
 
       const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
 

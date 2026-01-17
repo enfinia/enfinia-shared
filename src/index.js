@@ -18,7 +18,14 @@ const { BaseRepository } = require('./adapters/repositories');
 // New infrastructure modules
 const { correlationIdMiddleware, getCorrelationId, createCorrelationHeaders, CORRELATION_HEADER } = require('./infrastructure/middleware/correlation-id');
 const { createLogger, withCorrelationId, withRequestContext, requestLoggerMiddleware, sanitizeLogData } = require('./infrastructure/logging/pino-logger');
-const { createSecurityMiddleware, jsonBodyParser, securityErrorHandler } = require('./infrastructure/middleware/security');
+const {
+  createSecurityMiddleware,
+  jsonBodyParser,
+  securityErrorHandler,
+  createAuthRateLimiter,
+  createTokenRateLimiter,
+  createIdentityRateLimiter
+} = require('./infrastructure/middleware/security');
 const { createS2SAuthMiddleware, createOptionalS2SAuthMiddleware } = require('./infrastructure/middleware/s2s-auth');
 const { S2SClient, S2STokenGenerator } = require('./adapters/auth/s2s-client');
 const { createHttpClient, httpClientMiddleware } = require('./infrastructure/http/http-client');
@@ -67,6 +74,25 @@ const {
   maskEmail,
   maskCurrency
 } = require('./infrastructure/crypto/encryption-service');
+const {
+  phoneSchema,
+  uuidSchema,
+  positiveIntSchema,
+  positiveIntStringSchema,
+  safeStringSchema,
+  nameSchema,
+  emailSchema,
+  amountSchema,
+  categorySchema,
+  identifyContactSchema,
+  createLeadSchema,
+  s2sTokenSchema,
+  s2sRefreshSchema,
+  createTransactionSchema,
+  createValidationMiddleware,
+  validate,
+  z
+} = require('./infrastructure/validation/schemas');
 
 module.exports = {
   // Legacy (compatibilidade)
@@ -93,6 +119,9 @@ module.exports = {
   createSecurityMiddleware,
   jsonBodyParser,
   securityErrorHandler,
+  createAuthRateLimiter,
+  createTokenRateLimiter,
+  createIdentityRateLimiter,
 
   // S2S Authentication
   createS2SAuthMiddleware,
@@ -154,6 +183,25 @@ module.exports = {
   BaseUseCase,
   RepositoryPort,
   BaseController,
-  BaseRepository
+  BaseRepository,
+
+  // Validation (Zod)
+  phoneSchema,
+  uuidSchema,
+  positiveIntSchema,
+  positiveIntStringSchema,
+  safeStringSchema,
+  nameSchema,
+  emailSchema,
+  amountSchema,
+  categorySchema,
+  identifyContactSchema,
+  createLeadSchema,
+  s2sTokenSchema,
+  s2sRefreshSchema,
+  createTransactionSchema,
+  createValidationMiddleware,
+  validate,
+  z
 };
 

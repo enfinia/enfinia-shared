@@ -25,13 +25,68 @@ const defaultRateLimitOptions = {
 };
 
 /**
+ * Strict rate limit for authentication endpoints
+ * 5 attempts per 15 minutes to prevent brute force attacks
+ */
+const authRateLimitOptions = {
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  message: {
+    error: 'Too many authentication attempts',
+    message: 'Too many login attempts. Please try again in 15 minutes.',
+    retryAfterSeconds: 900
+  }
+};
+
+/**
+ * Rate limit for token generation/refresh
+ * 10 requests per 15 minutes
+ */
+const tokenRateLimitOptions = {
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Too many token requests',
+    message: 'Token rate limit exceeded. Please try again later.',
+    retryAfterSeconds: 900
+  }
+};
+
+/**
+ * Rate limit for contact/identity operations
+ * 20 requests per minute to prevent enumeration attacks
+ */
+const identityRateLimitOptions = {
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Too many requests',
+    message: 'Please slow down your requests.',
+    retryAfterSeconds: 60
+  }
+};
+
+/**
  * Default CORS configuration
- * Allows specific origins and common HTTP methods
+ * Restricts origins based on environment - no wildcards in production
  */
 const defaultCorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc)
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // In production, reject requests without origin (CSRF protection)
     if (!origin) {
+      if (isProduction) {
+        return callback(new Error('Origin header required'));
+      }
+      // Allow no-origin only in development for testing tools
       return callback(null, true);
     }
 
@@ -39,7 +94,12 @@ const defaultCorsOptions = {
       ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim())
       : ['http://localhost:3000', 'http://localhost:5173'];
 
-    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+    // Reject wildcard in production
+    if (isProduction && allowedOrigins.includes('*')) {
+      return callback(new Error('Wildcard origin not allowed in production'));
+    }
+
+    if (allowedOrigins.includes(origin) || (!isProduction && allowedOrigins.includes('*'))) {
       callback(null, true);
     } else {
       callback(new Error('CORS not allowed for this origin'));
@@ -65,19 +125,36 @@ function createSecurityMiddleware(options = {}) {
     bodyLimit = '10kb'
   } = options;
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
   return [
-    // Security headers
+    // Security headers with strict configuration
     helmet({
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'https:'],
-          connectSrc: ["'self'"]
+          styleSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          formAction: ["'self'"],
+          baseUri: ["'self'"]
         }
       },
-      crossOriginEmbedderPolicy: false
+      crossOriginEmbedderPolicy: true,
+      crossOriginOpenerPolicy: { policy: 'same-origin' },
+      crossOriginResourcePolicy: { policy: 'same-origin' },
+      hsts: isProduction ? {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      } : false,
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      noSniff: true,
+      xssFilter: true,
+      hidePoweredBy: true
     }),
 
     // CORS
@@ -112,10 +189,40 @@ function securityErrorHandler(err, req, res, next) {
   next(err);
 }
 
+/**
+ * Create rate limiter for authentication endpoints
+ * @returns {Function} Express rate limiting middleware
+ */
+function createAuthRateLimiter() {
+  return rateLimit(authRateLimitOptions);
+}
+
+/**
+ * Create rate limiter for token operations
+ * @returns {Function} Express rate limiting middleware
+ */
+function createTokenRateLimiter() {
+  return rateLimit(tokenRateLimitOptions);
+}
+
+/**
+ * Create rate limiter for identity/contact operations
+ * @returns {Function} Express rate limiting middleware
+ */
+function createIdentityRateLimiter() {
+  return rateLimit(identityRateLimitOptions);
+}
+
 module.exports = {
   createSecurityMiddleware,
   jsonBodyParser,
   securityErrorHandler,
   defaultRateLimitOptions,
-  defaultCorsOptions
+  defaultCorsOptions,
+  authRateLimitOptions,
+  tokenRateLimitOptions,
+  identityRateLimitOptions,
+  createAuthRateLimiter,
+  createTokenRateLimiter,
+  createIdentityRateLimiter
 };
