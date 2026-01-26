@@ -5,6 +5,7 @@ const Logger = require('./logger');
 const AppVars = require('./variables');
 const CryptoService = require('./crypto-service');
 const BrasilApiClient = require('./brasilapi-client');
+const PluggyClient = require('./pluggy-client');
 const { supabase } = require('../lib/supabase-client');
 
 module.exports = {
@@ -12,6 +13,7 @@ module.exports = {
   AppVars,
   CryptoService,
   BrasilApiClient,
+  PluggyClient,
   supabase
 };
 
