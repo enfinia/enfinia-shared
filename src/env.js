@@ -109,27 +109,4 @@ const ENV = {
   }
 };
 
-# ===== 🌐 SERVIÇOS INTERNOS (OPCIONAL - usa localhost por padrão) =====
-# Desenvolvimento local: não precisa definir
-# Railway: use ${{service.variable}} para referenciar entre serviços
-
-BOT_GATEWAY_URL=http://localhost:4001
-USER_SERVICE_URL=http://localhost:4002
-IDENTITY_SERVICE_URL=http://localhost:4003
-BASELINE_SERVICE_URL=http://localhost:4004
-TRANSACTION_SERVICE_URL=http://localhost:4005
-FILE_PROCESSING_SERVICE_URL=http://localhost:4006
-SUMMARY_SERVICE_URL=http://localhost:4007
-CONVERSATIONAL_AI_SERVICE_URL=http://localhost:4008
-BALANCE_SERVICE_URL=http://localhost:4009
-FINANCIAL_PLAN_SERVICE_URL=http://localhost:4010
-ORCHESTRATION_SERVICE_URL=http://localhost:4011
-BACKOFFICE_SERVICE_URL=http://localhost:4012
-
-# ===== 🔧 CONFIGURAÇÕES (OPCIONAL) =====
-NODE_ENV=development
-PORT=3000
-LOG_LEVEL=info
-
-
 module.exports = { ENV };
