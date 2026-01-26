@@ -1,6 +1,7 @@
 require('dotenv').config({ path: process.env.CONFIG_PATH || '.env' });
 
 const Logger = require('./logger');
+const { ENV } = require('./env');
 
 /**
  * Cliente mínimo para a Pluggy Data API (Open Finance).
@@ -15,15 +16,16 @@ const Logger = require('./logger');
  */
 class PluggyClient {
   constructor(options = {}) {
-    this.clientId = options.clientId || process.env.PLUGGY_CLIENT_ID || '';
-    this.clientSecret = options.clientSecret || process.env.PLUGGY_CLIENT_SECRET || '';
-    this.baseUrl = (options.baseUrl || process.env.PLUGGY_BASE_URL || 'https://api.pluggy.ai').replace(/\/$/, '');
+    this.clientId = options.clientId || ENV.pluggy.CLIENT_ID || '';
+    this.clientSecret = options.clientSecret || ENV.pluggy.CLIENT_SECRET || '';
+    this.baseUrl = (options.baseUrl || ENV.pluggy.BASE_URL || 'https://api.pluggy.ai').replace(/\/$/, '');
 
     this.accessToken = null;
     this.accessTokenExpiresAt = 0;
 
     if (!this.clientId || !this.clientSecret) {
       Logger.warn('⚠️ PLUGGY_CLIENT_ID/PLUGGY_CLIENT_SECRET não configurados - PluggyClient desabilitado');
+      Logger.info('💡 Configure no .env ou Railway Shared Variables');
       this.enabled = false;
     } else {
       this.enabled = true;
