@@ -24,3 +24,5 @@ Thumbs.db
 # Outros
 *.tgz
 *.swp
+# Local env files
+.env.sandbox
