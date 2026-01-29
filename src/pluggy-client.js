@@ -162,6 +162,24 @@ class PluggyClient {
       query: { accountId, ...params }
     });
   }
+
+  /**
+   * Cria um Connect Token para inicializar o Pluggy Connect Widget.
+   * O token é válido por ~2 horas e permite que o usuário conecte sua conta bancária.
+   * 
+   * @param {Object} options - Opções de configuração do token
+   * @param {string} options.clientUserId - ID único do usuário no seu sistema
+   * @param {Object} options.webhookUrl - URL para receber notificações de eventos
+   * @returns {Promise<{accessToken: string}>}
+   */
+  async createConnectToken(options = {}) {
+    const body = {
+      clientUserId: options.clientUserId,
+      webhookUrl: options.webhookUrl
+    };
+
+    return this._request('POST', '/connect_token', { body });
+  }
 }
 
 module.exports = PluggyClient;
