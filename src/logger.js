@@ -51,6 +51,20 @@ class Logger {
   static truncarTexto(texto, maxLength = 50) {
     return texto.length > maxLength ? texto.substring(0, maxLength) + '...' : texto;
   }
+
+  // 👤 Log específico para identidade resolvida no BotGateway
+  static identidadeProcessarMensagemDebug(telefone, identidade) {
+    const resumo = {
+      situacao: identidade?.situacao,
+      accountId: identidade?.accountId,
+      userId: identidade?.userId,
+      leadId: identidade?.leadId,
+      accountStatus: identidade?.accountStatus,
+      accountStep: identidade?.accountStep
+    };
+
+    this.debug(`👤 Identidade resolvida para mensagem de ${telefone}`, resumo);
+  }
 }
 
 module.exports = Logger;

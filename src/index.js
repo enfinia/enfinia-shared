@@ -4,8 +4,10 @@ require('dotenv').config({ path: process.env.CONFIG_PATH || '.env' });
 // Legacy exports (mantidos para compatibilidade)
 const Logger = require('./logger');
 const AppVars = require('./variables');
+const { ENV } = require('./env');
 const CryptoService = require('./crypto-service');
 const BrasilApiClient = require('./brasilapi-client');
+const PluggyClient = require('./pluggy-client');
 const { supabase } = require('../lib/supabase-client');
 
 // Clean Architecture base classes
@@ -98,8 +100,10 @@ module.exports = {
   // Legacy (compatibilidade)
   Logger,
   AppVars,
+  ENV,
   CryptoService,
   BrasilApiClient,
+  PluggyClient,
   supabase, // Legacy singleton - use createSupabaseClient or getSupabaseClient instead
 
   // Correlation ID
