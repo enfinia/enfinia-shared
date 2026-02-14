@@ -9,15 +9,26 @@ const { z } = require('zod');
 // Common patterns
 const PHONE_REGEX = /^\+?[1-9]\d{8,14}$/;
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// WhatsApp contact format: may include @s.whatsapp.net or @c.us suffix, or just digits
+const WHATSAPP_CONTACT_REGEX = /^[\d+@.\-\s\w]+$/i;
 
 /**
- * Phone number validation
+ * Phone number validation (strict)
  * Accepts international format with or without + prefix
  */
 const phoneSchema = z.string()
   .min(9, 'Phone number too short')
   .max(16, 'Phone number too long')
   .regex(PHONE_REGEX, 'Invalid phone number format');
+
+/**
+ * WhatsApp contact validation (flexible)
+ * Accepts various formats: +5511999887766, 5511999887766@s.whatsapp.net, etc.
+ */
+const whatsappContactSchema = z.string()
+  .min(9, 'Contact too short')
+  .max(50, 'Contact too long')
+  .regex(WHATSAPP_CONTACT_REGEX, 'Invalid contact format');
 
 /**
  * UUID validation
@@ -54,6 +65,14 @@ const nameSchema = z.string()
   .regex(/^[\p{L}\p{N}\s\-''.]+$/u, 'Name contains invalid characters');
 
 /**
+ * WhatsApp display name - more permissive to allow emojis and special chars
+ */
+const whatsappNameSchema = z.string()
+  .max(200, 'Name too long')
+  .optional()
+  .nullable();
+
+/**
  * Email validation
  */
 const emailSchema = z.string().email('Invalid email format').max(254, 'Email too long');
@@ -64,13 +83,14 @@ const emailSchema = z.string().email('Invalid email format').max(254, 'Email too
 
 /**
  * POST /identity/contacts/identify
+ * Uses flexible validation for WhatsApp data
  */
 const identifyContactSchema = z.object({
-  contato: phoneSchema.optional(),
-  telefone: phoneSchema.optional(),
-  lid: z.string().max(50).optional(),
+  contato: whatsappContactSchema.optional(),
+  telefone: whatsappContactSchema.optional(),
+  lid: z.string().max(100).optional().nullable(),
   criarRegistroSeAusente: z.boolean().optional(),
-  nomeDisplay: nameSchema.optional()
+  nomeDisplay: whatsappNameSchema
 }).refine(
   (data) => data.contato || data.telefone,
   { message: 'Either contato or telefone is required' }
@@ -137,7 +157,7 @@ const createTransactionSchema = z.object({
   hashId: positiveIntStringSchema.or(positiveIntSchema),
   amount: amountSchema,
   category: categorySchema,
-  description: safeStringSchema.max(500).optional(),
+  description: z.string().max(500).optional(),
   date: z.string().datetime().optional()
 });
 
@@ -200,11 +220,13 @@ function validate(schema, data) {
 module.exports = {
   // Common schemas
   phoneSchema,
+  whatsappContactSchema,
   uuidSchema,
   positiveIntSchema,
   positiveIntStringSchema,
   safeStringSchema,
   nameSchema,
+  whatsappNameSchema,
   emailSchema,
   amountSchema,
   categorySchema,

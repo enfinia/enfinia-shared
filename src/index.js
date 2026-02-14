@@ -78,6 +78,8 @@ const {
 } = require('./infrastructure/crypto/encryption-service');
 const {
   phoneSchema,
+  whatsappContactSchema,
+  whatsappNameSchema,
   uuidSchema,
   positiveIntSchema,
   positiveIntStringSchema,
@@ -191,6 +193,8 @@ module.exports = {
 
   // Validation (Zod)
   phoneSchema,
+  whatsappContactSchema,
+  whatsappNameSchema,
   uuidSchema,
   positiveIntSchema,
   positiveIntStringSchema,
