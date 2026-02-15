@@ -43,7 +43,11 @@ class CryptoService {
       throw new Error('ENCRYPTION_KEY deve ter no mínimo 32 caracteres');
     }
 
-    this.key = crypto.scryptSync(this.secretKey, 'salt', 32);
+    const salt = process.env.ENCRYPTION_SALT || 'salt';
+    if (salt === 'salt') {
+      console.warn('[CryptoService] ENCRYPTION_SALT not set - using insecure default. Set ENCRYPTION_SALT in production.');
+    }
+    this.key = crypto.scryptSync(this.secretKey, salt, 32);
     this.algorithm = 'aes-256-cbc';
   }
 
