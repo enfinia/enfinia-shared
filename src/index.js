@@ -66,6 +66,7 @@ const {
   withRetry,
   chunk: chunkArray
 } = require('./infrastructure/database/batch-operations');
+const { createDocumentationMiddleware } = require('./infrastructure/middleware/documentation');
 const {
   createEncryptionService,
   hash,
@@ -190,6 +191,9 @@ module.exports = {
   RepositoryPort,
   BaseController,
   BaseRepository,
+
+  // Documentation
+  createDocumentationMiddleware,
 
   // Validation (Zod)
   phoneSchema,
