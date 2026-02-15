@@ -81,12 +81,10 @@ const defaultCorsOptions = {
   origin: (origin, callback) => {
     const isProduction = process.env.NODE_ENV === 'production';
 
-    // In production, reject requests without origin (CSRF protection)
+    // Allow requests without Origin header (S2S calls, mobile apps, CLI tools).
+    // CORS is a browser-only mechanism; server-to-server security is handled
+    // by S2S JWT authentication, not CORS.
     if (!origin) {
-      if (isProduction) {
-        return callback(new Error('Origin header required'));
-      }
-      // Allow no-origin only in development for testing tools
       return callback(null, true);
     }
 
@@ -107,7 +105,7 @@ const defaultCorsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID', 'X-Service-Name']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID', 'X-Service-Name', 'X-Internal-Token']
 };
 
 /**
