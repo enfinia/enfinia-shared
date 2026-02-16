@@ -89,11 +89,12 @@ const identifyContactSchema = z.object({
   contato: whatsappContactSchema.optional(),
   telefone: whatsappContactSchema.optional(),
   lid: z.string().max(100).optional().nullable(),
+  contactKey: z.string().max(50).optional().nullable(),
   criarRegistroSeAusente: z.boolean().optional(),
   nomeDisplay: whatsappNameSchema
 }).refine(
-  (data) => data.contato || data.telefone,
-  { message: 'Either contato or telefone is required' }
+  (data) => data.contato || data.telefone || data.contactKey,
+  { message: 'Either contato, telefone, or contactKey is required' }
 );
 
 /**
