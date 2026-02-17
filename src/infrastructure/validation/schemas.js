@@ -102,8 +102,9 @@ const identifyContactSchema = z.object({
  */
 const createLeadSchema = z.object({
   hashId: positiveIntStringSchema.or(positiveIntSchema),
-  telefone: phoneSchema.optional(),
-  nome: nameSchema.optional()
+  telefone: whatsappContactSchema.optional(),
+  nome: nameSchema.optional(),
+  lid: z.string().max(100).optional().nullable()
 });
 
 /**
