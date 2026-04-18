@@ -36,6 +36,49 @@ class S2SClient {
     this.refreshToken = null;
     this.accessTokenExpiry = null;
     this.refreshing = null;
+    this.authBlockedUntil = null;
+  }
+
+  _getRetryAfterSeconds(response, errorText) {
+    let retryAfterSeconds = 0;
+
+    const retryAfterHeader = response?.headers?.get?.('retry-after');
+    if (retryAfterHeader) {
+      const parsed = Number.parseInt(retryAfterHeader, 10);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        retryAfterSeconds = parsed;
+      }
+    }
+
+    try {
+      const parsedError = JSON.parse(errorText);
+      if (
+        Number.isFinite(parsedError?.retryAfterSeconds) &&
+        parsedError.retryAfterSeconds > 0
+      ) {
+        retryAfterSeconds = parsedError.retryAfterSeconds;
+      }
+    } catch (_) {
+      // Response body is not JSON. Keep header-based value (if any).
+    }
+
+    return retryAfterSeconds;
+  }
+
+  _setAuthBlockedForSeconds(seconds) {
+    this.authBlockedUntil = Date.now() + (seconds * 1000);
+  }
+
+  _assertAuthNotBlocked() {
+    if (!this.authBlockedUntil) return;
+    const remainingMs = this.authBlockedUntil - Date.now();
+    if (remainingMs <= 0) {
+      this.authBlockedUntil = null;
+      return;
+    }
+
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    throw new Error(`S2S authentication temporarily blocked. Retry in ${remainingSeconds} seconds.`);
   }
 
   /**
@@ -43,6 +86,8 @@ class S2SClient {
    * @returns {Promise<{accessToken: string, refreshToken: string}>}
    */
   async authenticate() {
+    this._assertAuthNotBlocked();
+
     if (!this.authEndpoint) {
       throw new Error('S2S_AUTH_ENDPOINT not configured');
     }
@@ -60,6 +105,10 @@ class S2SClient {
 
     if (!response.ok) {
       const error = await response.text();
+      const retryAfterSeconds = this._getRetryAfterSeconds(response, error);
+      if (retryAfterSeconds > 0) {
+        this._setAuthBlockedForSeconds(retryAfterSeconds);
+      }
       throw new Error(`S2S authentication failed: ${error}`);
     }
 
@@ -79,6 +128,8 @@ class S2SClient {
    * @returns {Promise<{accessToken: string}>}
    */
   async refresh() {
+    this._assertAuthNotBlocked();
+
     if (!this.refreshToken) {
       return this.authenticate();
     }
@@ -99,6 +150,12 @@ class S2SClient {
     });
 
     if (!response.ok) {
+      const error = await response.text();
+      const retryAfterSeconds = this._getRetryAfterSeconds(response, error);
+      if (retryAfterSeconds > 0) {
+        this._setAuthBlockedForSeconds(retryAfterSeconds);
+        throw new Error(`S2S refresh failed: ${error}`);
+      }
       // Refresh token expired, re-authenticate
       this.refreshToken = null;
       return this.authenticate();
@@ -122,6 +179,7 @@ class S2SClient {
       Date.now() > (this.accessTokenExpiry - 60000);
 
     if (needsRefresh) {
+      this._assertAuthNotBlocked();
       // Prevent concurrent refresh calls
       if (!this.refreshing) {
         this.refreshing = this.refresh().finally(() => {
@@ -162,6 +220,7 @@ class S2SClient {
     this.accessToken = null;
     this.refreshToken = null;
     this.accessTokenExpiry = null;
+    this.authBlockedUntil = null;
   }
 }
 

@@ -199,6 +199,73 @@ describe('S2SClient', () => {
 
       await expect(client.authenticate()).rejects.toThrow('S2S authentication failed');
     });
+
+    it('should block re-auth attempts when rate-limited with retryAfterSeconds', async () => {
+      mockHttpClient.mockResolvedValueOnce({
+        ok: false,
+        headers: { get: () => null },
+        text: () => Promise.resolve(JSON.stringify({
+          error: 'Too many authentication attempts',
+          retryAfterSeconds: 900
+        }))
+      });
+
+      const client = new S2SClient({
+        serviceApiKey: 'test-key',
+        serviceName: 'test-service',
+        authEndpoint: 'http://localhost:3001',
+        httpClient: mockHttpClient
+      });
+
+      await expect(client.authenticate()).rejects.toThrow('S2S authentication failed');
+      await expect(client.authenticate()).rejects.toThrow('temporarily blocked');
+      expect(mockHttpClient).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getValidToken cooldown handling', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should retry after cooldown expires', async () => {
+      jest.useFakeTimers();
+      const nowSpy = jest.spyOn(Date, 'now');
+      nowSpy.mockReturnValue(0);
+
+      mockHttpClient
+        .mockResolvedValueOnce({
+          ok: false,
+          headers: { get: () => null },
+          text: () => Promise.resolve(JSON.stringify({
+            error: 'Too many authentication attempts',
+            retryAfterSeconds: 2
+          }))
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({
+            accessToken: 'recovered-token',
+            refreshToken: 'refresh-token',
+            expiresIn: 900
+          })
+        });
+
+      const client = new S2SClient({
+        serviceApiKey: 'test-key',
+        serviceName: 'test-service',
+        authEndpoint: 'http://localhost:3001',
+        httpClient: mockHttpClient
+      });
+
+      await expect(client.getValidToken()).rejects.toThrow('S2S authentication failed');
+      await expect(client.getValidToken()).rejects.toThrow('temporarily blocked');
+
+      nowSpy.mockReturnValue(3000);
+      await expect(client.getValidToken()).resolves.toBe('recovered-token');
+
+      nowSpy.mockRestore();
+    });
   });
 
   describe('request', () => {
@@ -264,6 +331,7 @@ describe('S2SClient', () => {
       expect(client.accessToken).toBeNull();
       expect(client.refreshToken).toBeNull();
       expect(client.accessTokenExpiry).toBeNull();
+      expect(client.authBlockedUntil).toBeNull();
     });
   });
 });
