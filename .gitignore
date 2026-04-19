@@ -31,3 +31,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+py/.venv/
+**/__pycache__/
+*.pyc
