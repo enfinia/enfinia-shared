@@ -2,6 +2,16 @@
 
 Pacote compartilhado com configurações, variáveis de ambiente e utilitários usados por todos os serviços da plataforma Enfinia.
 
+## Python service runtime
+
+Python services consume the runtime package from the `python/` subdirectory. It owns correlation propagation, bounded dependency calls, safe idempotent retries, dependency telemetry, and the worker-thread boundary for synchronous SDKs.
+
+```bash
+pip install "enfinia-service-runtime @ git+https://github.com/enfinia/enfinia-shared.git@<commit>#subdirectory=python"
+```
+
+Consumers must pin a commit. Do not copy these policies into service repositories.
+
 ## 📦 Instalação
 
 ```bash
