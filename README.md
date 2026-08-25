@@ -11,6 +11,7 @@ pip install "enfinia-service-runtime @ git+https://github.com/enfinia/enfinia-sh
 ```
 
 Consumers must pin a commit. Do not copy these policies into service repositories.
+Every merged runtime behavior change must also bump the package version before consumers repin.
 
 ## 📦 Instalação
 

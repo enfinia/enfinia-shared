@@ -23,9 +23,25 @@ _IDEMPOTENT_METHODS = frozenset({"GET", "HEAD"})
 _RETRYABLE_STATUSES = frozenset({502, 504})
 
 
-async def run_blocking(operation: Callable[[], T]) -> T:
-    """Run synchronous dependency work without blocking async event loop."""
-    return await asyncio.to_thread(operation)
+async def run_blocking(
+    operation: Callable[[], T],
+    *,
+    limiter: asyncio.Semaphore | None = None,
+) -> T:
+    """Run sync work on default executor, optionally limiting caller fan-out."""
+    if limiter is None:
+        return await asyncio.to_thread(operation)
+    async with limiter:
+        return await asyncio.to_thread(operation)
+
+
+def create_dependency_client(
+    *,
+    timeout: httpx.Timeout = DEFAULT_HTTP_TIMEOUT,
+    **kwargs: Any,
+) -> httpx.AsyncClient:
+    """Build HTTP client with shared bounded timeout policy."""
+    return httpx.AsyncClient(timeout=timeout, **kwargs)
 
 
 async def request_dependency(

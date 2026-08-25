@@ -17,12 +17,8 @@ _correlation_id: contextvars.ContextVar[str | None] = contextvars.ContextVar(
 
 
 def current_correlation_id() -> str:
-    """Return stable correlation ID for current request or background task."""
-    correlation_id = _correlation_id.get()
-    if correlation_id is None:
-        correlation_id = str(uuid.uuid4())
-        _correlation_id.set(correlation_id)
-    return correlation_id
+    """Return bound correlation ID, or a fresh ID when no scope is active."""
+    return _correlation_id.get() or str(uuid.uuid4())
 
 
 @contextmanager

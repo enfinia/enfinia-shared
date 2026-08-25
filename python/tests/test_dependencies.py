@@ -11,6 +11,7 @@ import pytest
 from enfinia_runtime import (
     DEFAULT_HTTP_TIMEOUT,
     correlation_scope,
+    create_dependency_client,
     request_dependency,
     run_blocking,
 )
@@ -25,7 +26,7 @@ def test_get_retries_502_and_preserves_correlation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     async def scenario() -> None:
-        async with httpx.AsyncClient(timeout=DEFAULT_HTTP_TIMEOUT) as client:
+        async with create_dependency_client() as client:
             request = AsyncMock(side_effect=[_response(502), _response(200)])
             monkeypatch.setattr(client, "request", request)
             with correlation_scope("retry-id"):
@@ -46,7 +47,7 @@ def test_get_retries_502_and_preserves_correlation(
 
 def test_get_does_not_retry_terminal_503(monkeypatch: pytest.MonkeyPatch) -> None:
     async def scenario() -> None:
-        async with httpx.AsyncClient(timeout=DEFAULT_HTTP_TIMEOUT) as client:
+        async with create_dependency_client() as client:
             request = AsyncMock(return_value=_response(503))
             monkeypatch.setattr(client, "request", request)
             response = await request_dependency(
@@ -66,7 +67,7 @@ def test_post_does_not_retry_transport_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     async def scenario() -> None:
-        async with httpx.AsyncClient(timeout=DEFAULT_HTTP_TIMEOUT) as client:
+        async with create_dependency_client() as client:
             request = AsyncMock(side_effect=httpx.ConnectError("unavailable"))
             monkeypatch.setattr(client, "request", request)
             with pytest.raises(httpx.ConnectError, match="unavailable"):
@@ -86,6 +87,15 @@ def test_default_timeout_bounds_each_http_phase() -> None:
     assert DEFAULT_HTTP_TIMEOUT.read == 30.0
     assert DEFAULT_HTTP_TIMEOUT.write == 10.0
     assert DEFAULT_HTTP_TIMEOUT.pool == 3.0
+
+    client = create_dependency_client()
+    try:
+        assert client.timeout.connect == 3.0
+        assert client.timeout.read == 30.0
+        assert client.timeout.write == 10.0
+        assert client.timeout.pool == 3.0
+    finally:
+        asyncio.run(client.aclose())
 
 
 def test_blocking_operation_runs_off_event_loop() -> None:
