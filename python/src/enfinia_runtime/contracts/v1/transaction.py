@@ -10,9 +10,21 @@ from .base import ContractModelV1
 TransactionNatureV1 = Literal["credit", "debit"]
 
 
+def _snake_to_camel(value: str) -> str:
+    first, *rest = value.split("_")
+    return first + "".join(word.capitalize() for word in rest)
+
+
 class TransactionCreateRequestV1(ContractModelV1):
-    user_id: int = Field(gt=0, alias="userId")
-    account_id: int = Field(gt=0, alias="accountId")
+    model_config = ConfigDict(
+        alias_generator=_snake_to_camel,
+        extra="forbid",
+        populate_by_name=True,
+        str_strip_whitespace=True,
+    )
+
+    user_id: int = Field(gt=0)
+    account_id: int = Field(gt=0)
     value: FiniteFloat = Field(ge=-10_000_000, le=10_000_000)
     description: str = Field(min_length=1)
     nature: TransactionNatureV1 = "debit"
@@ -21,30 +33,22 @@ class TransactionCreateRequestV1(ContractModelV1):
     category_index: int | None = Field(
         default=None,
         gt=0,
-        alias="categoryIndex",
     )
     subcategory: str | None = Field(default=None, max_length=100)
     source: str = Field(default="manual", min_length=1)
-    transaction_type: str = Field(
-        default="outros",
-        alias="type",
-        min_length=1,
-    )
+    type: str = Field(default="outros", min_length=1)
     counterparty: str | None = None
     identifier: str | None = Field(default=None, max_length=100)
     transacted_at: datetime | None = Field(
         default=None,
-        alias="transactedAt",
     )
     installment_number: int | None = Field(
         default=None,
         gt=0,
-        alias="installmentNumber",
     )
     installment_total: int | None = Field(
         default=None,
         gt=0,
-        alias="installmentTotal",
     )
 
 
