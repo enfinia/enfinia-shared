@@ -16,12 +16,7 @@ def _snake_to_camel(value: str) -> str:
 
 
 class TransactionCreateRequestV1(ContractModelV1):
-    model_config = ConfigDict(
-        alias_generator=_snake_to_camel,
-        extra="forbid",
-        populate_by_name=True,
-        str_strip_whitespace=True,
-    )
+    model_config = ConfigDict(alias_generator=_snake_to_camel)
 
     user_id: int = Field(gt=0)
     account_id: int = Field(gt=0)
@@ -36,7 +31,7 @@ class TransactionCreateRequestV1(ContractModelV1):
     )
     subcategory: str | None = Field(default=None, max_length=100)
     source: str = Field(default="manual", min_length=1)
-    type: str = Field(default="outros", min_length=1)
+    transaction_type: str = Field(default="outros", min_length=1, alias="type")
     counterparty: str | None = None
     identifier: str | None = Field(default=None, max_length=100)
     transacted_at: datetime | None = Field(

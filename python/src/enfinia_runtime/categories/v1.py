@@ -91,6 +91,7 @@ ESSENTIAL_CATEGORY_INDEXES_V1 = frozenset(
         CategoryIndexV1.PET,
     }
 )
+"""Bootstrap defaults only; runtime `categories.essential` values override them."""
 
 
 def normalize_category_v1(value: str) -> str:
