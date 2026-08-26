@@ -13,6 +13,11 @@ pip install "enfinia-service-runtime @ git+https://github.com/enfinia/enfinia-sh
 Consumers must pin a commit. Do not copy these policies into service repositories.
 Every merged runtime behavior change must also bump the package version before consumers repin.
 
+Versioned Python boundaries live under `enfinia_runtime.contracts.v1`,
+`enfinia_runtime.clients.v1`, `enfinia_runtime.categories.v1`, and
+`enfinia_runtime.crypto.v1`. Producers and consumers must migrate together and
+keep the previous version available until every caller has repinned.
+
 ## 📦 Instalação
 
 ```bash
