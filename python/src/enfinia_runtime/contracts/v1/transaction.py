@@ -73,6 +73,10 @@ class TransactionRecordV1(ContractModelV1):
         default=False,
         alias="idempotentReplay",
     )
+    decryption_fallback: bool = Field(
+        default=False,
+        alias="decryptionFallback",
+    )
 
 
 class TransactionCreateResponseV1(ContractModelV1):
