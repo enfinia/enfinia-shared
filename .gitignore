@@ -24,6 +24,7 @@ Thumbs.db
 # Outros
 *.tgz
 *.swp
+
 # Local env files
 .env.sandbox
 
@@ -34,3 +35,4 @@ Thumbs.db
 py/.venv/
 **/__pycache__/
 *.pyc
+python/.venv/
