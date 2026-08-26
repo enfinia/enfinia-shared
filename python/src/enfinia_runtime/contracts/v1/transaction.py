@@ -22,7 +22,7 @@ class TransactionCreateRequestV1(ContractModelV1):
     account_id: int = Field(gt=0)
     value: FiniteFloat = Field(ge=-10_000_000, le=10_000_000)
     description: str = Field(min_length=1)
-    nature: TransactionNatureV1 = "debit"
+    nature: TransactionNatureV1
     flow: str | None = None
     category: str | None = None
     category_index: int | None = Field(
