@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import AliasChoices, ConfigDict, Field, FiniteFloat, PositiveInt
+from pydantic import AliasChoices, ConfigDict, Field, FiniteFloat
 
 from .base import ContractModelV1
 
@@ -11,11 +11,13 @@ TransactionNatureV1 = Literal["credit", "debit"]
 
 
 class TransactionCreateRequestV1(ContractModelV1):
-    user_id: PositiveInt = Field(
+    user_id: int = Field(
+        gt=0,
         validation_alias=AliasChoices("userId", "user_id"),
         serialization_alias="userId",
     )
-    account_id: PositiveInt = Field(
+    account_id: int = Field(
+        gt=0,
         validation_alias=AliasChoices("accountId", "account_id"),
         serialization_alias="accountId",
     )
@@ -24,8 +26,9 @@ class TransactionCreateRequestV1(ContractModelV1):
     nature: TransactionNatureV1 = "debit"
     flow: str | None = None
     category: str | None = None
-    category_index: PositiveInt | None = Field(
+    category_index: int | None = Field(
         default=None,
+        gt=0,
         validation_alias=AliasChoices("categoryIndex", "category_index"),
         serialization_alias="categoryIndex",
     )
@@ -44,13 +47,15 @@ class TransactionCreateRequestV1(ContractModelV1):
         validation_alias=AliasChoices("transactedAt", "transacted_at"),
         serialization_alias="transactedAt",
     )
-    installment_number: PositiveInt | None = Field(
+    installment_number: int | None = Field(
         default=None,
+        gt=0,
         validation_alias=AliasChoices("installmentNumber", "installment_number"),
         serialization_alias="installmentNumber",
     )
-    installment_total: PositiveInt | None = Field(
+    installment_total: int | None = Field(
         default=None,
+        gt=0,
         validation_alias=AliasChoices("installmentTotal", "installment_total"),
         serialization_alias="installmentTotal",
     )
@@ -63,9 +68,9 @@ class TransactionRecordV1(ContractModelV1):
         str_strip_whitespace=True,
     )
 
-    id: PositiveInt
-    user_id: PositiveInt
-    account_id: PositiveInt
+    id: int = Field(gt=0)
+    user_id: int = Field(gt=0)
+    account_id: int = Field(gt=0)
     value: FiniteFloat
     description: str
     nature: TransactionNatureV1
