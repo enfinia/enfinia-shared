@@ -1,0 +1,1 @@
+"""Versioned service boundary schemas."""
