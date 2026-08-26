@@ -18,11 +18,17 @@ class TransactionServiceClientV1:
         *,
         base_url: str,
         service_api_key: str,
+        service_name: str,
         logger: logging.Logger,
     ) -> None:
+        if not service_api_key.strip():
+            raise ValueError("service_api_key is required")
+        if not service_name.strip():
+            raise ValueError("service_name is required")
         self._client = client
         self._base_url = base_url.rstrip("/")
-        self._service_api_key = service_api_key
+        self._service_api_key = service_api_key.strip()
+        self._service_name = service_name.strip()
         self._logger = logger
 
     async def create_transaction(
@@ -32,6 +38,7 @@ class TransactionServiceClientV1:
         headers = {
             "Authorization": f"Bearer {self._service_api_key}",
             "Content-Type": "application/json",
+            "X-Service-Name": self._service_name,
         }
         response = await request_dependency(
             self._client,

@@ -67,6 +67,7 @@ def test_transaction_client_serializes_and_validates_v1_contract() -> None:
             client,
             base_url="http://transaction.test/",
             service_api_key="service-key",
+            service_name="file-processing",
             logger=logging.getLogger("test"),
         )
 
@@ -87,6 +88,7 @@ def test_transaction_client_serializes_and_validates_v1_contract() -> None:
             await client.aclose()
 
         assert result.transaction.id == 9
+        assert result.transaction.decryption_fallback is False
         call = request.await_args
         assert call is not None
         assert call.args[:2] == ("POST", "http://transaction.test/transactions")
@@ -101,5 +103,21 @@ def test_transaction_client_serializes_and_validates_v1_contract() -> None:
             "categoryIndex": 5,
         }
         assert call.kwargs["headers"]["Authorization"] == "Bearer service-key"
+        assert call.kwargs["headers"]["X-Service-Name"] == "file-processing"
 
     asyncio.run(scenario())
+
+
+def test_transaction_client_rejects_missing_s2s_identity() -> None:
+    client = httpx.AsyncClient()
+    try:
+        with pytest.raises(ValueError, match="service_api_key is required"):
+            TransactionServiceClientV1(
+                client,
+                base_url="http://transaction.test",
+                service_api_key="",
+                service_name="file-processing",
+                logger=logging.getLogger("test"),
+            )
+    finally:
+        asyncio.run(client.aclose())
