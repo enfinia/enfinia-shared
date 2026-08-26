@@ -25,6 +25,20 @@ def test_transaction_request_rejects_invalid_boundary_data() -> None:
         )
 
 
+def test_transaction_request_requires_nature() -> None:
+    with pytest.raises(ValidationError) as error:
+        TransactionCreateRequestV1.model_validate(
+            {
+                "userId": 42,
+                "accountId": 7,
+                "value": 84.5,
+                "description": "Mercado",
+            }
+        )
+
+    assert error.value.errors()[0]["loc"] == ("nature",)
+
+
 def test_transaction_client_serializes_and_validates_v1_contract() -> None:
     async def scenario() -> None:
         client = httpx.AsyncClient()
@@ -64,6 +78,7 @@ def test_transaction_client_serializes_and_validates_v1_contract() -> None:
                         "account_id": 7,
                         "value": -84.5,
                         "description": "Mercado",
+                        "nature": "debit",
                         "category_index": 5,
                     }
                 )
