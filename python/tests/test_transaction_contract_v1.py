@@ -58,12 +58,14 @@ def test_transaction_client_serializes_and_validates_v1_contract() -> None:
 
         try:
             result = await service.create_transaction(
-                TransactionCreateRequestV1(
-                    user_id=42,
-                    account_id=7,
-                    value=-84.5,
-                    description="Mercado",
-                    category_index=5,
+                TransactionCreateRequestV1.model_validate(
+                    {
+                        "user_id": 42,
+                        "account_id": 7,
+                        "value": -84.5,
+                        "description": "Mercado",
+                        "category_index": 5,
+                    }
                 )
             )
         finally:
