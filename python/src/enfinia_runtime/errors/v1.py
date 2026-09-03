@@ -11,6 +11,12 @@ This module owns exactly those shared codes. A code only one service can emit
 stays in that service's own ``errors`` module; adding it here would imply a
 contract that does not exist.
 
+Membership is decided by comparing the ``ERROR_CODES`` sets of every service, not
+by intuition. As of ENF-63 those five services emit 140 distinct codes, 22 of which
+are emitted by more than one — and those 22 are exactly the members below. Adding a
+code here without a second emitter, or leaving a two-emitter code out, both break
+the rule this module exists for.
+
 Versioned like ``enfinia_runtime.categories``: v1 is append-only. Renaming or
 removing a member is a breaking wire change and needs a v2.
 """
@@ -50,16 +56,25 @@ class SharedErrorCodeV1(StrEnum):
 
     # Identifiers every service validates at its boundary.
     ACCOUNT_ID_REQUIRED = "account_id_required"
+    HASH_ID_INVALID = "hash_id_invalid"
+    HASH_ID_REQUIRED = "hash_id_required"
     USER_ID_REQUIRED = "user_id_required"
 
-    # Transaction and plan fields validated in more than one service.
+    # Payload fields validated in more than one service.
+    ANSWER_REQUIRED = "answer_required"
     DESCRIPTION_REQUIRED = "description_required"
+    IMAGE_REQUIRED = "image_required"
     NATURE_INVALID = "nature_invalid"
     VALUE_INVALID = "value_invalid"
     VALUE_REQUIRED = "value_required"
 
     # Records looked up by more than one service.
+    ACCOUNT_NOT_FOUND = "account_not_found"
     ACTIVE_GOAL_NOT_FOUND = "active_goal_not_found"
+    LEAD_NOT_FOUND = "lead_not_found"
+
+    # Lead activation, which identity-service performs and backoffice triggers.
+    ACTIVATION_FAILED = "activation_failed"
 
 
 SHARED_ERROR_CODES_V1: frozenset[str] = frozenset(code.value for code in SharedErrorCodeV1)

@@ -37,6 +37,48 @@ def test_framework_codes_are_a_subset_of_the_shared_contract() -> None:
     }
 
 
+# The emitters of each shared code, as of ENF-63. Recorded so that a member losing
+# its second emitter is visible in review rather than silently becoming dead weight,
+# and so a reader can tell why a code is here at all.
+_EMITTERS = {
+    "account_id_required": {"plan", "summary", "transaction"},
+    "account_not_found": {"identity", "plan"},
+    "activation_failed": {"backoffice", "identity"},
+    "active_goal_not_found": {"plan", "summary"},
+    "ai_unavailable": {"summary", "transaction"},
+    "answer_required": {"plan", "summary"},
+    "description_required": {"summary", "transaction"},
+    "hash_id_invalid": {"backoffice", "identity"},
+    "hash_id_required": {"backoffice", "identity"},
+    "image_required": {"summary", "transaction"},
+    "internal_error": {"backoffice", "identity", "plan", "transaction"},
+    "lead_not_found": {"backoffice", "identity"},
+    "method_not_allowed": {"backoffice", "identity", "plan", "transaction"},
+    "nature_invalid": {"plan", "transaction"},
+    "request_validation_failed": {"backoffice", "identity", "plan", "transaction"},
+    "route_not_found": {"backoffice", "identity", "plan", "transaction"},
+    "service_api_key_not_configured": {
+        "backoffice", "identity", "plan", "summary", "transaction",
+    },
+    "supabase_not_configured": {"backoffice", "identity", "plan", "transaction"},
+    "unauthorized": {"identity", "plan", "summary", "transaction"},
+    "user_id_required": {"plan", "transaction"},
+    "value_invalid": {"plan", "transaction"},
+    "value_required": {"plan", "summary"},
+}
+
+
+def test_every_member_is_recorded_with_its_emitters() -> None:
+    """A member here must exist because two services emit it, not by intuition."""
+    assert set(_EMITTERS) == SHARED_ERROR_CODES_V1
+
+
+def test_no_member_has_a_single_emitter() -> None:
+    """One emitter means the code is service-local and belongs in that service."""
+    single = sorted(code for code, services in _EMITTERS.items() if len(services) < 2)
+    assert not single, f"these have one emitter and should not be shared: {single}"
+
+
 def test_membership_helper_rejects_service_local_codes() -> None:
     assert is_shared_error_code_v1("unauthorized") is True
     assert is_shared_error_code_v1(SharedErrorCodeV1.AI_UNAVAILABLE) is True
