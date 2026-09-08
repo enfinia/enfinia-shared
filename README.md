@@ -27,6 +27,24 @@ Category indexes and titles are stable contract data. Essentiality values in
 this package are bootstrap defaults only; runtime `categories.essential` rows
 remain authoritative.
 
+### Lead decision confirmation V1
+
+Runtime 0.6.0 exports `LeadDecisionResultV1`, `LeadDecisionStateV1` and
+`LeadDecisionV1` from `enfinia_runtime.contracts.v1`. Customer validates its RPC
+result and Channel validates the HTTP response with
+`LeadDecisionResultV1.validate_confirmation(payload, hash_id=..., decision=...)`.
+It binds the result to the requested contact and decision: terms acceptance
+requires status 2 without denial; denial requires an explicit nonblank marker.
+Success must be literal true, changed must be a boolean (false is valid replay),
+and identity/status fields must be integers without coercion.
+
+Unknown database fields are ignored and omitted by `model_dump()`, leaving only
+`success`, `changed` and `lead.{hash_id,status,activation_denied_at}`. Missing or
+malformed required fields fail validation. This is a compatible wire-shape
+migration; no RPC or database change. Merge the runtime first, then repin both
+consumers to its immutable commit before deploying either consumer. Rollback
+uses the prior consumer image and runtime pin.
+
 ## 📦 Instalação
 
 ```bash
