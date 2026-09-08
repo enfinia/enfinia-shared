@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "enfinia-service-runtime"
-version = "0.6.0"
+version = "0.7.0"
 description = "Shared runtime boundaries for Enfinia Python services"
 requires-python = ">=3.11"
 dependencies = [

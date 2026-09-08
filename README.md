@@ -27,6 +27,20 @@ Category indexes and titles are stable contract data. Essentiality values in
 this package are bootstrap defaults only; runtime `categories.essential` rows
 remain authoritative.
 
+### Business calendar V1
+
+Runtime 0.7.0 adds `enfinia_runtime.dates.v1`, shared by Channel, Ledger and Insights:
+
+- `BUSINESS_TIMEZONE_V1`: IANA `America/Sao_Paulo`.
+- `business_datetime_to_utc_v1`: offsetless civil input means local business time; explicit offsets preserve their instant.
+- `business_date_to_utc_v1`: local start of a calendar day as a UTC datetime.
+- `stored_timestamp_to_business_date_v1`: stored ISO/datetime input means an instant; legacy offsetless values mean UTC.
+- `business_month_bounds_utc_v1`: inclusive/exclusive UTC ISO bounds for a local month.
+
+The two offsetless input policies are deliberately separate. Callers must know whether they are processing statement input or a persisted timestamp; no heuristic chooses between them. Invalid input raises `ValueError`, leaving error copy to consumers. ZoneInfo supplies historical DST rules and honors an explicit datetime fold; a skipped local midnight resolves to the first instant of that day. The runtime environment must provide the IANA timezone database.
+
+Convert imported civil dates only when building persistence payloads, after hashing the original parser values. This contract does not rewrite stored timestamps or change import identities. Consumers pin the merged runtime commit independently; older pins remain valid rollback targets.
+
 ### Lead decision confirmation V1
 
 Runtime 0.6.0 exports `LeadDecisionResultV1`, `LeadDecisionStateV1` and
